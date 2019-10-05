@@ -1,0 +1,68 @@
+---
+title: "Sales revenue in Accommodation and Food services industry"
+author: "Soham Deb"
+date: "4/22/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(Rmisc)
+```
+
+
+
+```{r}
+
+ECN_2012_US_72A1_with_ann <- read.csv("/Users/sohamdeb/Desktop/QTM 150/ECN_2012_US_72A1_with_ann.csv") #to get data
+```
+Data: Financial data of Accomodation and Food services industry in the United States in 2012. Source: United States Census Bureau (https://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?src=bkmk#)
+
+Research question/topic: Which sectors in the American Accomodation and Food services had the highest sales revenue in 2012? Additionally, what was the relation of sales revenue to the number of establishments of a business?
+
+
+```{r}
+accomfood<- na.omit(ECN_2012_US_72A1_with_ann) #to remove NA from data
+```
+
+
+
+```{r}
+
+accomfood$sales<-as.numeric(as.character(accomfood$RCPTOT))#to convert concerned data of sales revenue to numeric
+accomfood1<-filter(accomfood, !is.na(sales)) #to filter out businesses that did not report financial data
+summarySE(data=accomfood1,measurevar = "sales",groupvars = "`NAICS.display.label`") #to find average sales revenue of businesses and total businesses in every sector
+``` 
+
+The above table helps see the number of businesses in a particular sector (under "N") along with the average sales revenue of every business. The highest average sales are in the Accomodation and Food services sector, followed by Food services and drinking places, and Restauraunts and other eating places (this has double the number of businesses than the earlier 2). These 3 stand out ahead the rest.
+
+
+
+```{r}
+
+ggplot(accomfood1, aes(x=`NAICS.display.label`, y=sales))+
+geom_bar(stat="identity", aes(fill=`NAICS.display.label`))+theme(legend.position = "top")+labs(y="Total sales revenue",x="Sector",title = "Figure 1: Total sales revenue by sector") +coord_flip()
+```
+
+Figure 1: This figure depicts the that despite Accomodation and Food services sector and Food services and drinking places having higher average sales revenue, Restaraunts and other eating places lead the way in terms of total sales due to having double the number of businesses. There is still a clearlry visible gap between these 3 sectors and the rest. For example, Drinking places as well as Rooming and boarding houses have the most businesses (153 and 141 respectively) but cannot compare with these 3 showing the effect of having businesses with high sales revenue.
+
+Is there, however, a relation between the number of establishments a business has and the average sales of the business per establishment? First, we need to find average sales per establishment.
+
+```{r}
+accomfood1$avgsales<-accomfood1$sales/accomfood1$ESTAB #to find average sales per establishment of a busines
+```
+
+
+
+```{r}
+ggplot(accomfood1,aes(x=ESTAB,y=avgsales))+geom_point(aes(color=`NAICS.display.label`))+theme(legend.position = "top")+labs(x="Number of establishments of business",y="Average sales per establishment of business", title = "Figure 2: Average Sales vs Number of establishments")
+                                                                          
+```
+
+
+Figure 2: There is no observed correlation between the sales revenue of a business and the number of establishments it has. While there is massive variance in the number of establishments a business has, there is very little in terms of how much sales revenue a business has. The exception is that casino hotels have a lot of varaiation in sales but since most have just 1 establishment it does not show any relation between number of establishments and sales revenue per business. 
+
+Answers to research questions: "Accomodation and Food services sector", "Food services and drinking places", and "Restaraunts and other eating places" are the sectors with highest average sales respectively, while "Restaraunts and other eating places" has highest overall sales. There is no relation between average sales revenue of business and the number of establishments it has.
+
